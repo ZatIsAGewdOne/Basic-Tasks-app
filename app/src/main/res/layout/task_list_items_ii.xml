@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingEnd="8dp"
+    android:paddingRight="8dp"
+    android:paddingStart="8dp"
+    android:weightSum="5">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:baselineAligned="false"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tli_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary_text"
+            android:textSize="22sp"
+            android:textStyle="normal|bold"
+            tools:text="TaskTimer App" />
+
+        <TextView
+            android:id="@+id/tli_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondary_text"
+            tools:text="Task Description" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/tli_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:baselineAlignBottom="false"
+            android:contentDescription="@string/btn_edit_description"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
+
+        <ImageButton
+            android:id="@+id/tli_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:baselineAlignBottom="false"
+            android:contentDescription="@string/btn_delete_description"
+            app:srcCompat="@android:drawable/ic_menu_delete" />
+    </LinearLayout>
+</LinearLayout>
