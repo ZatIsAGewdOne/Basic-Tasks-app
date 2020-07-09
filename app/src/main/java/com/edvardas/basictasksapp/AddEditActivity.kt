@@ -25,6 +25,16 @@ class AddEditActivity : AppCompatActivity(), OnSaveClicked, DialogEvents {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            Log.d(TAG, "onOptionsItemSelected: home button pressed")
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment) as AddEditActivityFragment
+            return if (fragment.canClose) {
+                super.onOptionsItemSelected(item)
+            } else {
+                showConfirmationDialog()
+                false
+            }
+        }
         return super.onOptionsItemSelected(item)
     }
 

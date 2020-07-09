@@ -38,7 +38,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tli_name"
         tools:text="Task Description" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/tli_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toTopOf="@+id/tli_delete"
         app:srcCompat="@android:drawable/ic_menu_edit" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/tli_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

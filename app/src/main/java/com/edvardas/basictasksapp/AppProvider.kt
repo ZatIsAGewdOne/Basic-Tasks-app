@@ -4,6 +4,8 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
+import android.database.SQLException
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.util.Log
@@ -16,6 +18,7 @@ class AppProvider : ContentProvider() {
         const val CONTENT_AUTH = "com.edvardas.basictasksapp.provider"
         @JvmStatic
         val CONTENT_AUTH_URI: Uri = Uri.parse("content://$CONTENT_AUTH")
+        @JvmStatic
         val uriMatcher = buildUriMatcher()
 
         private const val TASKS = 100
@@ -47,7 +50,30 @@ class AppProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        TODO("Not yet implemented")
+        Log.d(TAG, "insert: start")
+        val match = uriMatcher.match(uri)
+        val db: SQLiteDatabase
+        val taskId: Long
+        val uriReturned: Uri
+        if (match == TASKS) {
+            db = openHelper!!.writableDatabase
+            taskId = db.insert(TasksMetaData.TABLE_NAME, null, values)
+            if (taskId >= 0) {
+                uriReturned = TasksMetaData.buildTaskUri(taskId)
+            } else {
+                throw SQLException("Failed to insert into $uri")
+            }
+        } else {
+            throw IllegalArgumentException("Unknown uri: $uri")
+        }
+
+        if (taskId >= 0) {
+            Log.d(TAG, "insert: setting notifyChanged with $uri")
+            context?.contentResolver?.notifyChange(uri, null)
+        } else {
+            Log.d(TAG, "insert: noting inserted")
+        }
+        return uriReturned
     }
 
     override fun query(
@@ -85,11 +111,66 @@ class AppProvider : ContentProvider() {
     }
 
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("Not yet implemented")
+        val match = uriMatcher.match(uri)
+        val db: SQLiteDatabase
+        val count: Int
+        var selectionCriteria: String
+        when (match) {
+            TASKS -> {
+                db = openHelper!!.writableDatabase
+                count = db.update(TasksMetaData.TABLE_NAME, values, selection, selectionArgs)
+            }
+            TASKS_ID -> {
+                db = openHelper!!.writableDatabase
+                val taskId = TasksMetaData.getTaskId(uri)
+                selectionCriteria = "${TasksMetaData.Column.ID} = $taskId"
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.update(TasksMetaData.TABLE_NAME, values, selectionCriteria, selectionArgs)
+            }
+            else -> throw IllegalArgumentException("Unknown uri: $uri")
+        }
+        if (count > 0) {
+            Log.d(TAG, "update: Setting notifyChange with $uri")
+            context?.contentResolver?.notifyChange(uri, null)
+        } else {
+            Log.d(TAG, "update: nothing updated")
+        }
+
+        return count
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("Not yet implemented")
+        Log.d(TAG, "delete: update called with uri $uri")
+        val match = uriMatcher.match(uri)
+        val db: SQLiteDatabase
+        val count: Int
+        var selectionCriteria: String
+        when (match) {
+            TASKS -> {
+                db = openHelper!!.writableDatabase
+                count = db.delete(TasksMetaData.TABLE_NAME, selection, selectionArgs)
+            }
+            TASKS_ID -> {
+                db = openHelper!!.writableDatabase
+                val taskId = TasksMetaData.getTaskId(uri)
+                selectionCriteria = "${TasksMetaData.Column.ID} = $taskId"
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.delete(TasksMetaData.TABLE_NAME, selectionCriteria, selectionArgs)
+            }
+            else -> throw IllegalArgumentException("Unknown uri: $uri")
+        }
+        if (count > 0) {
+            Log.d(TAG, "delete: Setting notifyChange with $uri")
+            context?.contentResolver?.notifyChange(uri, null)
+        } else {
+            Log.d(TAG, "delete: nothing deleted")
+        }
+
+        return count
     }
 
     override fun getType(uri: Uri): String? {
