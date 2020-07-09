@@ -92,7 +92,7 @@ class AppProvider : ContentProvider() {
             TASKS_ID -> {
                 queryBuilder.tables = TasksMetaData.TABLE_NAME
                 val taskId = TasksMetaData.getTaskId(uri)
-                queryBuilder.appendWhere("${TasksMetaData.Column.ID} = $taskId")
+                queryBuilder.appendWhere("${TasksMetaData.Columns.ID} = $taskId")
             }
 
             else -> throw IllegalArgumentException("Unknown URI: $uri")
@@ -123,7 +123,7 @@ class AppProvider : ContentProvider() {
             TASKS_ID -> {
                 db = openHelper!!.writableDatabase
                 val taskId = TasksMetaData.getTaskId(uri)
-                selectionCriteria = "${TasksMetaData.Column.ID} = $taskId"
+                selectionCriteria = "${TasksMetaData.Columns.ID} = $taskId"
                 if (selection != null && selection.isNotEmpty()) {
                     selectionCriteria += " AND ($selection)"
                 }
@@ -155,7 +155,7 @@ class AppProvider : ContentProvider() {
             TASKS_ID -> {
                 db = openHelper!!.writableDatabase
                 val taskId = TasksMetaData.getTaskId(uri)
-                selectionCriteria = "${TasksMetaData.Column.ID} = $taskId"
+                selectionCriteria = "${TasksMetaData.Columns.ID} = $taskId"
                 if (selection != null && selection.isNotEmpty()) {
                     selectionCriteria += " AND ($selection)"
                 }

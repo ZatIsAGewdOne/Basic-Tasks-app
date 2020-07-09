@@ -33,10 +33,10 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(conte
     override fun onCreate(db: SQLiteDatabase?) {
         Log.d(TAG, "onCreate: starts")
         val tableCreationQuery = "CREATE TABLE ${TasksMetaData.TABLE_NAME} " +
-                "(${TasksMetaData.Column.ID} INTEGER PRIMARY KEY NOT NULL, " +
-                "${TasksMetaData.Column.TASKS_NAME} TEXT NOT NULL, " +
-                "${TasksMetaData.Column.TASKS_DESCRIPTION} TEXT, " +
-                "${TasksMetaData.Column.SORT_ORDER} INTEGER);"
+                "(${TasksMetaData.Columns.ID} INTEGER PRIMARY KEY NOT NULL, " +
+                "${TasksMetaData.Columns.TASKS_NAME} TEXT NOT NULL, " +
+                "${TasksMetaData.Columns.TASKS_DESCRIPTION} TEXT, " +
+                "${TasksMetaData.Columns.SORT_ORDER} INTEGER);"
         Log.d(TAG, "onCreate: $tableCreationQuery")
         db?.execSQL(tableCreationQuery)
         Log.d(TAG, "onCreate: ends")

@@ -7,4 +7,8 @@ data class Task(
     val name: String,
     val description: String,
     val sortOrder: Int
-) : Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = -8797762746944185733L
+    }
+}

@@ -125,7 +125,8 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
                 .commit()
         } else {
             Log.d(TAG, "taskEditRequest: In single pane mode")
-            val intent = Intent(this, AddEditActivity::class.java)
+            // TODO - Fix to show AddEditActivityFragment later!!!
+            val intent = Intent()
             if (task != null) {
                 intent.putExtra(Task::class.java.simpleName, task)
                 startActivity(intent)

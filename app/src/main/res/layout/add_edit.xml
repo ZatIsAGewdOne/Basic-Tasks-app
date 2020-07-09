@@ -1,38 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_add_edit"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="com.edvardas.basictasksapp.AddEditActivityFragment">
 
     <EditText
         android:id="@+id/add_edit_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="@string/add_edit_name_hint"
         android:ems="10"
         android:hint="@string/add_edit_name_hint"
         android:inputType="textNoSuggestions"
-        android:maxLength="64"
-        android:autofillHints="@string/add_edit_name_hint" />
+        android:maxLength="64" />
 
     <EditText
         android:id="@+id/add_edit_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="@string/add_edit_description_hint"
         android:ems="10"
         android:hint="@string/add_edit_description_hint"
         android:inputType="textMultiLine"
-        android:maxLength="256"
-        android:autofillHints="@string/add_edit_description_hint" />
+        android:maxLength="256" />
 
     <EditText
         android:id="@+id/add_edit_sort_order"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="@string/add_edit_sort_hint"
         android:ems="10"
         android:hint="@string/add_edit_sort_hint"
         android:inputType="number"
-        android:maxLength="9"
-        android:autofillHints="@string/add_edit_sort_hint" />
+        android:maxLength="9" />
 
     <Button
         android:id="@+id/add_edit_btn_save"

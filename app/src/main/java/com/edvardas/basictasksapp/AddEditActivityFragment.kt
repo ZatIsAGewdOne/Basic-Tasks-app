@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
 class AddEditActivityFragment : Fragment() {
@@ -34,9 +35,15 @@ class AddEditActivityFragment : Fragment() {
         listener = activity as OnSaveClicked
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        (activity as AppCompatActivity).actionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
     override fun onDetach() {
         super.onDetach()
         listener = null
+        (activity as AppCompatActivity).actionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onCreateView(
@@ -78,13 +85,13 @@ class AddEditActivityFragment : Fragment() {
                 FragmentEditMode.EDIT -> {
                     when {
                         nameTextView?.text.toString() == task?.name -> {
-                            values.put(TasksMetaData.Column.TASKS_NAME, nameTextView?.text.toString())
+                            values.put(TasksMetaData.Columns.TASKS_NAME, nameTextView?.text.toString())
                         }
                         descriptionTextView?.text.toString() == task?.description -> {
-                            values.put(TasksMetaData.Column.TASKS_DESCRIPTION, descriptionTextView?.text.toString())
+                            values.put(TasksMetaData.Columns.TASKS_DESCRIPTION, descriptionTextView?.text.toString())
                         }
                         so == task?.sortOrder -> {
-                            values.put(TasksMetaData.Column.SORT_ORDER, so)
+                            values.put(TasksMetaData.Columns.SORT_ORDER, so)
                         }
                     }
                     if (values.size() != 0) {
@@ -95,9 +102,9 @@ class AddEditActivityFragment : Fragment() {
                 FragmentEditMode.ADD -> {
                     if (nameTextView?.length()!! > 0) {
                         Log.d(TAG, "onCreateView: Adding new task")
-                        values.put(TasksMetaData.Column.TASKS_NAME, nameTextView?.text.toString())
-                        values.put(TasksMetaData.Column.TASKS_DESCRIPTION, descriptionTextView?.text.toString())
-                        values.put(TasksMetaData.Column.SORT_ORDER, so)
+                        values.put(TasksMetaData.Columns.TASKS_NAME, nameTextView?.text.toString())
+                        values.put(TasksMetaData.Columns.TASKS_DESCRIPTION, descriptionTextView?.text.toString())
+                        values.put(TasksMetaData.Columns.SORT_ORDER, so)
                         contentResolver?.insert(TasksMetaData.CONTENT_URI, values)
                     }
                 }
