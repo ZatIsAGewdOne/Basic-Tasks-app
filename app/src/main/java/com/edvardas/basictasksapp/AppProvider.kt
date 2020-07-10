@@ -39,11 +39,11 @@ class AppProvider : ContentProvider() {
             matcher.addURI(CONTENT_AUTH, TasksMetaData.TABLE_NAME, TASKS)
             matcher.addURI(CONTENT_AUTH, "${TasksMetaData.TABLE_NAME}/#", TASKS_ID)
 
-//        matcher.addURI(CONTENT_AUTH, TasksMetaData.TABLE_NAME, TIMINGS)
-//        matcher.addURI(CONTENT_AUTH, "${TasksMetaData.TABLE_NAME}/#", TIMINGS_ID)
-//
-//        matcher.addURI(CONTENT_AUTH, TasksMetaData.TABLE_NAME, TASK_DURATIONS)
-//        matcher.addURI(CONTENT_AUTH, "${TasksMetaData.TABLE_NAME}/#", TASK_DURATIONS_ID)
+            matcher.addURI(CONTENT_AUTH, DurationsMetaData.TABLE_NAME, TASK_DURATIONS)
+            matcher.addURI(CONTENT_AUTH, "${DurationsMetaData.TABLE_NAME}/#", TASK_DURATIONS_ID)
+
+            matcher.addURI(CONTENT_AUTH, TimingMetaData.TABLE_NAME, TASK_TIMINGS)
+            matcher.addURI(CONTENT_AUTH, "${TimingMetaData.TABLE_NAME}/#", TASK_TIMINGS_ID)
 
             return matcher
         }
@@ -92,6 +92,18 @@ class AppProvider : ContentProvider() {
                 queryBuilder.tables = TasksMetaData.TABLE_NAME
                 val taskId = TasksMetaData.getTaskId(uri)
                 queryBuilder.appendWhere("${TasksMetaData.Columns.ID} = $taskId")
+            }
+            TASK_TIMINGS -> queryBuilder.tables = TimingMetaData.TABLE_NAME
+            TASK_TIMINGS_ID -> {
+                queryBuilder.tables = TimingMetaData.TABLE_NAME
+                val timingId = TimingMetaData.getTimingId(uri)
+                queryBuilder.appendWhere("${TimingMetaData.Columns.ID} = $timingId")
+            }
+            TASK_DURATIONS -> queryBuilder.tables = DurationsMetaData.TABLE_NAME
+            TASK_DURATIONS_ID -> {
+                queryBuilder.tables = DurationsMetaData.TABLE_NAME
+                val durationId = DurationsMetaData.getDurationId(uri)
+                queryBuilder.appendWhere("${DurationsMetaData.Columns.ID} = $durationId")
             }
 
             else -> throw IllegalArgumentException("Unknown URI: $uri")
@@ -176,6 +188,10 @@ class AppProvider : ContentProvider() {
         return when(uriMatcher.match(uri)) {
             TASKS -> TasksMetaData.CONTENT_TYPE
             TASKS_ID -> TasksMetaData.CONTENT_TYPE_ITEM
+            TASK_TIMINGS -> TimingMetaData.CONTENT_TYPE
+            TASK_TIMINGS_ID -> TimingMetaData.CONTENT_TYPE_ITEM
+            TASK_DURATIONS -> DurationsMetaData.CONTENT_TYPE
+            TASK_DURATIONS_ID -> DurationsMetaData.CONTENT_TYPE_ITEM
             else -> throw IllegalArgumentException("Unknown Uri: $uri")
         }
     }

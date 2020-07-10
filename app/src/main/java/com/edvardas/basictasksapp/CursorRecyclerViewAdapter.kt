@@ -62,6 +62,7 @@ class CursorRecyclerViewAdapter(
     fun swapCursor(newCursor: Cursor?): Cursor? {
         if (newCursor == this.cursor) return null
         val oldCursor = this.cursor
+        this.cursor = newCursor
         if (newCursor == null) notifyDataSetChanged() else notifyItemRangeChanged(0, itemCount)
         return oldCursor
     }
