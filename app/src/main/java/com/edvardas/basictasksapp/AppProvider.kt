@@ -86,7 +86,6 @@ class AppProvider : ContentProvider() {
         Log.d(TAG, "query: called with URI: $uri")
         val match = uriMatcher.match(uri)
         val queryBuilder = SQLiteQueryBuilder()
-
         when (match) {
             TASKS -> queryBuilder.tables = TasksMetaData.TABLE_NAME
             TASKS_ID -> {

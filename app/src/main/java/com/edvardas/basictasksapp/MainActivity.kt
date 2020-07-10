@@ -27,6 +27,26 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
+        
+        val projection = arrayOf(
+            TasksMetaData.Columns.ID,
+            TasksMetaData.Columns.TASKS_NAME,
+            TasksMetaData.Columns.TASKS_DESCRIPTION,
+            TasksMetaData.Columns.SORT_ORDER)
+//        val selection = "${TasksMetaData.Columns.TASKS_NAME} = ?"
+//        val args = arrayOf("Test again")
+//        contentResolver?.delete(TasksMetaData.CONTENT_URI, selection, args)
+        val cursor = contentResolver?.query(TasksMetaData.CONTENT_URI, projection, null, null, TasksMetaData.Columns.SORT_ORDER)
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                for(i in 0 until cursor.columnCount) {
+                    Log.d(TAG, "onCreate: ${cursor.getColumnName(i)}: ${cursor.getString(i)}")
+                }
+                Log.d(TAG, "onCreate: ====================================")
+            }
+            cursor.close()
+        }
 
         if (findViewById<FrameLayout>(R.id.task_details_container) != null) {
             twoPane = true
