@@ -92,10 +92,12 @@ class MainActivityFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, 
     }
 
     override fun onEditTask(task: Task?) {
-        TODO("Not yet implemented")
+        Log.d(TAG, "onEditTask: called")
+        (activity as OnTaskClickListener?)?.onEditTask(task)
     }
 
     override fun onDeleteTask(task: Task?) {
-        TODO("Not yet implemented")
+        Log.d(TAG, "onDeleteTask: called")
+        (activity as OnTaskClickListener?)?.onDeleteTask(task)
     }
 }

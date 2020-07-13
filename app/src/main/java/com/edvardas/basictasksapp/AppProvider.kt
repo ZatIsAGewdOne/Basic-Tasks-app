@@ -55,16 +55,28 @@ class AppProvider : ContentProvider() {
         val db: SQLiteDatabase
         val taskId: Long
         val uriReturned: Uri
-        if (match == TASKS) {
-            db = openHelper!!.writableDatabase
-            taskId = db.insert(TasksMetaData.TABLE_NAME, null, values)
-            if (taskId >= 0) {
-                uriReturned = TasksMetaData.buildTaskUri(taskId)
-            } else {
-                throw SQLException("Failed to insert into $uri")
+        when (match) {
+            TASKS -> {
+                db = openHelper!!.writableDatabase
+                taskId = db.insert(TasksMetaData.TABLE_NAME, null, values)
+                if (taskId >= 0) {
+                    uriReturned = TasksMetaData.buildTaskUri(taskId)
+                } else {
+                    throw SQLException("Failed to insert into $uri")
+                }
             }
-        } else {
-            throw IllegalArgumentException("Unknown uri: $uri")
+
+            TASK_TIMINGS -> {
+                db = openHelper!!.writableDatabase
+                taskId = db.insert(TimingMetaData.TABLE_NAME, null, values)
+                if (taskId >= 0) {
+                    uriReturned = TimingMetaData.buildTimingUri(taskId)
+                } else {
+                    throw SQLException("Failed to insert into $uri")
+                }
+            }
+
+            else -> throw IllegalArgumentException("Unknown uri: $uri")
         }
 
         if (taskId >= 0) {
@@ -140,6 +152,19 @@ class AppProvider : ContentProvider() {
                 }
                 count = db.update(TasksMetaData.TABLE_NAME, values, selectionCriteria, selectionArgs)
             }
+            TASK_TIMINGS -> {
+                db = openHelper!!.writableDatabase
+                count = db.update(TasksMetaData.TABLE_NAME, values, selection, selectionArgs)
+            }
+            TASK_TIMINGS_ID -> {
+                db = openHelper!!.writableDatabase
+                val timingId = TimingMetaData.getTimingId(uri)
+                selectionCriteria = "${TasksMetaData.Columns.ID} = $timingId"
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.update(TimingMetaData.TABLE_NAME, values, selectionCriteria, selectionArgs)
+            }
             else -> throw IllegalArgumentException("Unknown uri: $uri")
         }
         if (count > 0) {
@@ -171,6 +196,21 @@ class AppProvider : ContentProvider() {
                     selectionCriteria += " AND ($selection)"
                 }
                 count = db.delete(TasksMetaData.TABLE_NAME, selectionCriteria, selectionArgs)
+            }
+
+            TASK_TIMINGS -> {
+                db = openHelper!!.writableDatabase
+                count = db.delete(TimingMetaData.TABLE_NAME, selection, selectionArgs)
+            }
+
+            TASK_TIMINGS_ID -> {
+                db = openHelper!!.writableDatabase
+                val timingId = TimingMetaData.getTimingId(uri)
+                selectionCriteria = "${TimingMetaData.Columns.ID} = $timingId"
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.delete(TimingMetaData.TABLE_NAME, selectionCriteria, selectionArgs)
             }
             else -> throw IllegalArgumentException("Unknown uri: $uri")
         }

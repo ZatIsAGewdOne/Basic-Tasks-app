@@ -65,7 +65,7 @@ class AddEditActivityFragment : Fragment() {
                 Log.d(TAG, "onCreateView: task details found, editing...")
                 nameTextView?.setText(task.name)
                 descriptionTextView?.setText(task.description)
-                sortOrderTextView?.setText(task.sortOrder)
+                sortOrderTextView?.setText(task.sortOrder.toString())
                 FragmentEditMode.EDIT
             } else {
                 FragmentEditMode.ADD
@@ -84,13 +84,13 @@ class AddEditActivityFragment : Fragment() {
             when (mode) {
                 FragmentEditMode.EDIT -> {
                     when {
-                        nameTextView?.text.toString() == task?.name -> {
+                        nameTextView?.text.toString() != task?.name -> {
                             values.put(TasksMetaData.Columns.TASKS_NAME, nameTextView?.text.toString())
                         }
-                        descriptionTextView?.text.toString() == task?.description -> {
+                        descriptionTextView?.text.toString() != task.description -> {
                             values.put(TasksMetaData.Columns.TASKS_DESCRIPTION, descriptionTextView?.text.toString())
                         }
-                        so == task?.sortOrder -> {
+                        so != task.sortOrder -> {
                             values.put(TasksMetaData.Columns.SORT_ORDER, so)
                         }
                     }
