@@ -1,5 +1,6 @@
 package com.edvardas.basictasksapp
 
+import android.content.ContentValues
 import android.database.Cursor
 import android.os.Bundle
 import android.util.Log
@@ -77,7 +78,7 @@ class MainActivityFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, 
         if (id == LOADER_ID) {
             return CursorLoader(requireActivity(), TasksMetaData.CONTENT_URI, projection, null, null, sortOrder)
         } else {
-            throw InvalidParameterException("${TAG}.oncreateLoader called with invalid id $id")
+            throw InvalidParameterException("${TAG}.onCreateLoader called with invalid id $id")
         }
     }
 
@@ -88,16 +89,44 @@ class MainActivityFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>, 
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
+        Log.d(TAG, "onLoaderReset: called")
         this.adapter?.swapCursor(null)
     }
 
-    override fun onEditTask(task: Task?) {
+    override fun onEditTask(task: Task) {
         Log.d(TAG, "onEditTask: called")
         (activity as OnTaskClickListener?)?.onEditTask(task)
     }
 
-    override fun onDeleteTask(task: Task?) {
+    override fun onDeleteTask(task: Task) {
         Log.d(TAG, "onDeleteTask: called")
         (activity as OnTaskClickListener?)?.onDeleteTask(task)
+    }
+
+    override fun onTaskLongTap(task: Task) {
+        if (timing != null) {
+            if (task.id == timing?.task?.id) {
+                saveTiming(timing!!)
+                timing = null
+                setTimingText(null)
+            } else {
+                saveTiming(timing!!)
+                timing = Timing(task)
+                setTimingText(timing)
+            }
+        } else {
+            timing = Timing(task)
+            setTimingText(timing)
+        }
+    }
+
+    private fun saveTiming(currentTiming: Timing) {
+        currentTiming.setDuration()
+        val contentResolver = activity?.contentResolver
+        val values = ContentValues()
+        values.put(TimingMetaData.Columns.TIMING_TASK_ID, currentTiming.task.id)
+        values.put(TimingMetaData.Columns.TIMING_START_TIME, currentTiming.startTime)
+        values.put(TimingMetaData.Columns.TIMING_DURATION, currentTiming.duration)
+        contentResolver?.insert(TimingMetaData.CONTENT_URI, values)
     }
 }

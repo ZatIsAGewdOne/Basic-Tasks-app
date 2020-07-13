@@ -27,8 +27,8 @@ class AppProvider : ContentProvider() {
         private const val TIMINGS = 200
         private const val TIMINGS_ID = 201
 
-        private const val TASK_TIMINGS = 300;
-        private const val TASK_TIMINGS_ID = 301;
+//        private const val TASK_TIMINGS = 300;
+//        private const val TASK_TIMINGS_ID = 301;
 
         private const val TASK_DURATIONS = 400
         private const val TASK_DURATIONS_ID = 401
@@ -42,8 +42,8 @@ class AppProvider : ContentProvider() {
             matcher.addURI(CONTENT_AUTH, DurationsMetaData.TABLE_NAME, TASK_DURATIONS)
             matcher.addURI(CONTENT_AUTH, "${DurationsMetaData.TABLE_NAME}/#", TASK_DURATIONS_ID)
 
-            matcher.addURI(CONTENT_AUTH, TimingMetaData.TABLE_NAME, TASK_TIMINGS)
-            matcher.addURI(CONTENT_AUTH, "${TimingMetaData.TABLE_NAME}/#", TASK_TIMINGS_ID)
+            matcher.addURI(CONTENT_AUTH, TimingMetaData.TABLE_NAME, TIMINGS)
+            matcher.addURI(CONTENT_AUTH, "${TimingMetaData.TABLE_NAME}/#", TIMINGS_ID)
 
             return matcher
         }
@@ -66,7 +66,7 @@ class AppProvider : ContentProvider() {
                 }
             }
 
-            TASK_TIMINGS -> {
+            TIMINGS -> {
                 db = openHelper!!.writableDatabase
                 taskId = db.insert(TimingMetaData.TABLE_NAME, null, values)
                 if (taskId >= 0) {
@@ -105,8 +105,8 @@ class AppProvider : ContentProvider() {
                 val taskId = TasksMetaData.getTaskId(uri)
                 queryBuilder.appendWhere("${TasksMetaData.Columns.ID} = $taskId")
             }
-            TASK_TIMINGS -> queryBuilder.tables = TimingMetaData.TABLE_NAME
-            TASK_TIMINGS_ID -> {
+            TIMINGS -> queryBuilder.tables = TimingMetaData.TABLE_NAME
+            TIMINGS_ID -> {
                 queryBuilder.tables = TimingMetaData.TABLE_NAME
                 val timingId = TimingMetaData.getTimingId(uri)
                 queryBuilder.appendWhere("${TimingMetaData.Columns.ID} = $timingId")
@@ -152,11 +152,11 @@ class AppProvider : ContentProvider() {
                 }
                 count = db.update(TasksMetaData.TABLE_NAME, values, selectionCriteria, selectionArgs)
             }
-            TASK_TIMINGS -> {
+            TIMINGS -> {
                 db = openHelper!!.writableDatabase
                 count = db.update(TasksMetaData.TABLE_NAME, values, selection, selectionArgs)
             }
-            TASK_TIMINGS_ID -> {
+            TIMINGS_ID -> {
                 db = openHelper!!.writableDatabase
                 val timingId = TimingMetaData.getTimingId(uri)
                 selectionCriteria = "${TasksMetaData.Columns.ID} = $timingId"
@@ -198,12 +198,12 @@ class AppProvider : ContentProvider() {
                 count = db.delete(TasksMetaData.TABLE_NAME, selectionCriteria, selectionArgs)
             }
 
-            TASK_TIMINGS -> {
+            TIMINGS -> {
                 db = openHelper!!.writableDatabase
                 count = db.delete(TimingMetaData.TABLE_NAME, selection, selectionArgs)
             }
 
-            TASK_TIMINGS_ID -> {
+            TIMINGS_ID -> {
                 db = openHelper!!.writableDatabase
                 val timingId = TimingMetaData.getTimingId(uri)
                 selectionCriteria = "${TimingMetaData.Columns.ID} = $timingId"
@@ -228,8 +228,8 @@ class AppProvider : ContentProvider() {
         return when(uriMatcher.match(uri)) {
             TASKS -> TasksMetaData.CONTENT_TYPE
             TASKS_ID -> TasksMetaData.CONTENT_TYPE_ITEM
-            TASK_TIMINGS -> TimingMetaData.CONTENT_TYPE
-            TASK_TIMINGS_ID -> TimingMetaData.CONTENT_TYPE_ITEM
+            TIMINGS -> TimingMetaData.CONTENT_TYPE
+            TIMINGS_ID -> TimingMetaData.CONTENT_TYPE_ITEM
             TASK_DURATIONS -> DurationsMetaData.CONTENT_TYPE
             TASK_DURATIONS_ID -> DurationsMetaData.CONTENT_TYPE_ITEM
             else -> throw IllegalArgumentException("Unknown Uri: $uri")

@@ -3,12 +3,14 @@ package com.edvardas.basictasksapp
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -21,35 +23,32 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
         private const val TAG = "MainActivity"
         const val DIALOG_ID_DELETE = 1
         const val DIALOG_ID_CANCEL_EDIT = 2
+        private const val DIALOG_ID_CANCEL_EDIT_UP = 3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-        
-        val projection = arrayOf(
-            TasksMetaData.Columns.ID,
-            TasksMetaData.Columns.TASKS_NAME,
-            TasksMetaData.Columns.TASKS_DESCRIPTION,
-            TasksMetaData.Columns.SORT_ORDER)
-//        val selection = "${TasksMetaData.Columns.TASKS_NAME} = ?"
-//        val args = arrayOf("Test again")
-//        contentResolver?.delete(TasksMetaData.CONTENT_URI, selection, args)
-        val cursor = contentResolver?.query(TasksMetaData.CONTENT_URI, projection, null, null, TasksMetaData.Columns.SORT_ORDER)
 
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                for(i in 0 until cursor.columnCount) {
-                    Log.d(TAG, "onCreate: ${cursor.getColumnName(i)}: ${cursor.getString(i)}")
-                }
-                Log.d(TAG, "onCreate: ====================================")
+        twoPane = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val editing = supportFragmentManager.findFragmentById(R.id.task_details_container) != null
+
+        val addEditLayout = findViewById<View>(R.id.task_details_container)
+        val mainFragment = findViewById<View>(R.id.fragment)
+
+        when {
+            twoPane -> {
+                mainFragment.visibility = View.VISIBLE
+                addEditLayout.visibility = View.VISIBLE
             }
-            cursor.close()
-        }
-
-        if (findViewById<FrameLayout>(R.id.task_details_container) != null) {
-            twoPane = true
+            editing -> {
+                mainFragment.visibility = View.GONE
+            }
+            else -> {
+                mainFragment.visibility = View.VISIBLE
+                addEditLayout.visibility = View.GONE
+            }
         }
     }
 
@@ -60,6 +59,13 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
             supportFragmentManager.beginTransaction()
                 .remove(fragment)
                 .commit()
+        }
+        val addEditLayout = findViewById<View>(R.id.task_details_container)
+        val mainFragment = findViewById<View>(R.id.fragment)
+
+        if (!twoPane) {
+            addEditLayout.visibility = View.GONE
+            mainFragment.visibility = View.VISIBLE
         }
     }
 
@@ -84,7 +90,19 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
                 taskEditRequest(null)
                 true
             }
-            R.id.menumain_showDurations -> true
+            R.id.menumain_showDurations -> {
+                startActivity(Intent(this, DurationsReport::class.java))
+                true
+            }
+            android.R.id.home -> {
+                val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container) as AddEditActivityFragment
+                return if (fragment.canClose) {
+                    super.onOptionsItemSelected(item)
+                } else {
+                    showConfirmationDialog(DIALOG_ID_CANCEL_EDIT_UP)
+                    true
+                }
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -115,44 +133,39 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
                 Toast.makeText(this, "No browser application found, cannot visit world-wide web", Toast.LENGTH_LONG).show()
             }
         }
+        dialog?.show()
     }
 
-    override fun onEditTask(task: Task?) {
+    override fun onEditTask(task: Task) {
         taskEditRequest(task)
     }
 
-    override fun onDeleteTask(task: Task?) {
+    override fun onDeleteTask(task: Task) {
         val dialog = AppDialog()
         val args = Bundle()
         args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_DELETE)
-        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.deldiag_message, task?.id, task?.name))
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.deldiag_message, task.id, task.name))
         args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.deldiag_delete_agree)
-        args.putLong("TaskId", task?.id!!)
+        args.putLong("TaskId", task.id)
         dialog.arguments = args
         dialog.show(supportFragmentManager, null)
     }
 
     private fun taskEditRequest(task: Task?) {
         Log.d(TAG, "taskEditRequest: starts")
-        if(twoPane) {
-            Log.d(TAG, "taskEditRequest: In two pane mode (tablet)")
-            val fragment = AddEditActivityFragment()
-            val arguments = Bundle()
-            arguments.putSerializable(Task::class.java.simpleName, task)
-            fragment.arguments = arguments
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.task_details_container, fragment)
-                .commit()
-        } else {
-            Log.d(TAG, "taskEditRequest: In single pane mode")
-            // TODO - Fix to show AddEditActivityFragment later!!!
-            val intent = Intent()
-            if (task != null) {
-                intent.putExtra(Task::class.java.simpleName, task)
-                startActivity(intent)
-            } else {
-                startActivity(intent)
-            }
+        val fragment = AddEditActivityFragment()
+        val arguments = Bundle()
+        arguments.putSerializable(Task::class.java.simpleName, task)
+        fragment.arguments = arguments
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.task_details_container, fragment)
+            .commit()
+
+        if (!twoPane) {
+            val addEditLayout = findViewById<View>(R.id.task_details_container)
+            val mainFragment = findViewById<View>(R.id.fragment)
+            mainFragment.visibility = View.GONE
+            addEditLayout.visibility = View.VISIBLE
         }
     }
 
@@ -166,7 +179,7 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
                 }
                 contentResolver?.delete(TasksMetaData.buildTaskUri(taskId), null, null)
             }
-            DIALOG_ID_CANCEL_EDIT -> { /* No action required */ }
+            DIALOG_ID_CANCEL_EDIT, DIALOG_ID_CANCEL_EDIT_UP -> { /* No action required */ }
         }
     }
 
@@ -187,14 +200,7 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
         if (fragment.canClose) {
             super.onBackPressed()
         } else {
-            val dialog = AppDialog()
-            val args = Bundle()
-            args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT)
-            args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancel_editdiag_message))
-            args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancel_editdiag_positive)
-            args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancel_editdiag_negative)
-            dialog.arguments = args
-            dialog.show(supportFragmentManager, null)
+            showConfirmationDialog(DIALOG_ID_CANCEL_EDIT)
         }
     }
 
@@ -203,5 +209,20 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
         if (dialog != null && dialog!!.isShowing) {
             dialog!!.dismiss()
         }
+    }
+
+    private fun showConfirmationDialog(dialogId: Int) {
+        val dialog = AppDialog()
+        val args = Bundle()
+        args.putInt(AppDialog.DIALOG_ID, dialogId)
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancel_editdiag_message))
+        args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancel_editdiag_positive)
+        args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancel_editdiag_negative)
+        dialog.arguments = args
+        dialog.show(supportFragmentManager, null)
+    }
+
+    override fun onTaskLongTap(task: Task) {
+
     }
 }

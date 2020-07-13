@@ -9,7 +9,7 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(conte
     companion object {
         private const val TAG = "AppDatabase"
         const val DATABASE_NAME = "Tasks.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 3
         private var instance: AppDatabase? = null
 
         /**
@@ -39,13 +39,16 @@ class AppDatabase private constructor(context: Context) : SQLiteOpenHelper(conte
                 "${TasksMetaData.Columns.SORT_ORDER} INTEGER);"
         Log.d(TAG, "onCreate: $tableCreationQuery")
         db?.execSQL(tableCreationQuery)
+        addTimingsTable(db)
+        addDurationsView(db)
         Log.d(TAG, "onCreate: ends")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         Log.d(TAG, "onUpgrade: starts")
         when (oldVersion) {
-            1 -> {}
+            1 -> addTimingsTable(db)
+            2 -> addDurationsView(db)
             else -> throw IllegalStateException("onUpgrade() with unknown newVersion: $newVersion")
         }
         Log.d(TAG, "onUpgrade: ends")
