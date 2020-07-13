@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
         when(dialogId) {
             DIALOG_ID_DELETE -> {
                 val taskId = args?.getLong("TaskId")!!
-                if (BuildConfig.DEBUG && taskId == 0.toLong()) {
+                if (BuildConfig.DEBUG && taskId == 0L) {
                     throw AssertionError("Task ID is zero")
                 }
                 contentResolver?.delete(TasksMetaData.buildTaskUri(taskId), null, null)
@@ -186,7 +186,26 @@ class MainActivity : AppCompatActivity(), OnTaskClickListener, OnSaveClicked, Di
     override fun onNegativeDialogResult(dialogId: Int, args: Bundle?) {
         when (dialogId) {
             DIALOG_ID_DELETE -> { /* No action required */ }
-            DIALOG_ID_CANCEL_EDIT -> finish()
+            DIALOG_ID_CANCEL_EDIT, DIALOG_ID_CANCEL_EDIT_UP -> {
+                val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
+                if (fragment != null) {
+                    supportFragmentManager.beginTransaction()
+                        .remove(fragment)
+                        .commit()
+                    if (twoPane) {
+                        if (dialogId == DIALOG_ID_CANCEL_EDIT) {
+                            finish()
+                        }
+                    } else {
+                        val addEditLayout = findViewById<View>(R.id.task_details_container)
+                        val mainFragment = findViewById<View>(R.id.fragment)
+                        addEditLayout.visibility = View.GONE
+                        mainFragment.visibility = View.VISIBLE
+                    }
+                } else {
+                    finish()
+                }
+            }
         }
     }
 

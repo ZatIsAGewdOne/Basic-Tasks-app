@@ -214,14 +214,14 @@ class DurationsReport : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curso
             Log.d(TAG, "applyFilter: startDate is $startDate and endDate is $endDate")
 
             args.putString(SELECTION_PARAM, "StartDate Between ? AND ?")
-            args.putStringArray(SELECTION_PARAM, selectionArgs)
+            args.putStringArray(SELECTION_ARGS_PARAM, selectionArgs)
         } else {
             val startDate = String.format(Locale.ITALY, "%04d-%02d-%02d",
                 calendar.get(GregorianCalendar.YEAR),
                 calendar.get(GregorianCalendar.MONTH) + 1,
                 calendar.get(GregorianCalendar.DAY_OF_MONTH))
             val selectionArgs = arrayOf(startDate)
-            args.putString(SELECTION_PARAM, "StartDate = ?")
+            args.putString(SELECTION_PARAM, "StartDate=?")
             args.putStringArray(SELECTION_ARGS_PARAM, selectionArgs)
         }
     }

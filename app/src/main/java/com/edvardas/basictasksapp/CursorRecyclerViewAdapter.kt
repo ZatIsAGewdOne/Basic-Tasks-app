@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class CursorRecyclerViewAdapter(
     private var cursor: Cursor?,
-    private var listener: OnTaskClickListener
+    private var listener: OnTaskClickListener?
 ) : RecyclerView.Adapter<CursorRecyclerViewAdapter.TaskViewHolder>() {
     companion object {
         private const val TAG = "CursorRecyclerViewAdapt"
@@ -44,14 +44,22 @@ class CursorRecyclerViewAdapter(
 
             val buttonListener = View.OnClickListener {
                 when(it.id) {
-                    R.id.tli_edit -> listener.onEditTask(task)
-                    R.id.tli_delete -> listener.onDeleteTask(task)
+                    R.id.tli_edit -> listener?.onEditTask(task)
+                    R.id.tli_delete -> listener?.onDeleteTask(task)
                     else -> Log.d(TAG, "onBindViewHolder: found unexpected button id ${it.id}")
                 }
             }
 
+            val buttonLongListener = View.OnLongClickListener {
+                if (listener != null) {
+                    listener?.onTaskLongTap(task)
+                    return@OnLongClickListener true
+                }
+                return@OnLongClickListener false
+            }
             holder.editButton?.setOnClickListener(buttonListener)
             holder.deleteButton?.setOnClickListener(buttonListener)
+            holder.itemView.setOnLongClickListener(buttonLongListener)
         }
     }
 
